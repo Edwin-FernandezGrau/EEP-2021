@@ -13,12 +13,7 @@ import numpy as np       #### para operaciones numericas
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-
-
-
-# "VOTOS_P1" = PERU LIBRE
-# "VOTOS_P2" = FUERZA POPULAR
-#@st.cache(suppress_st_warning=True)   
+   
 def app() :
 
     ###### importamos información de los excel #################################################################################
@@ -36,9 +31,7 @@ def app() :
         base = base[["AMBITO","DEPARTAMENTO","MESA_DE_VOTACION","VOTO_SHARE_PL","VOTO_SHARE_FP","VOTOS_P1","VOTOS_P2"]]
         return base
     
-    ############################################################################################################################
-    
-    
+    ############################################################################################################################  
     #TITULO
     st.header('RESUMEN POR DEPARTAMENTO SEGÚN PARTIDO GANADOR') 
    
@@ -47,27 +40,14 @@ def app() :
     st.write("Fecha de Descarga :2021-06-19")
     base = get_data()
     
-    
-    
-    
+   
     base_resumen = base[(base["AMBITO"]!="EXTRANJERO")].groupby("DEPARTAMENTO", as_index =False).agg({"MESA_DE_VOTACION":"count",
                                                                    "VOTOS_P1": "sum" , 
-                                                                   "VOTOS_P2": "sum",
-                                                                   #"VOTO_SHARE_FP": "mean",
-                                                                   #"VOTO_SHARE_PL": "mean",
-                                                                   #"VOTO_SHARE_DIFF": "mean"
-                                                                   }
-                                                                   )
-    
-    
+                                                                   "VOTOS_P2": "sum",} )
+                                                                   
+  
     base_resumen["share dif"] = abs(base_resumen["VOTOS_P1"]-base_resumen["VOTOS_P2"])/base_resumen["MESA_DE_VOTACION"]
   
-    # base_resumen.style.format("{:.2%}")
-    
-    # base_resumen.style.format({  "VOTO_SHARE_FP" :" {:.2%}",
-    #                             "VOTO_SHARE_PL" :" {:.2%}",
-    #                             "VOTO_SHARE_DIFF" :" {:.2%}"
-    #                            })
     
     base_resumen["ESTADO"] = np.where(base_resumen["VOTOS_P1"]>base_resumen["VOTOS_P2"],
                                             "GANÓ PL", "GANÓ FP")
@@ -76,12 +56,10 @@ def app() :
     base_resumen["VOTO_SHARE_PL"] = 1-base_resumen["VOTO_SHARE_FP"] 
     base_resumen["VOTO_SHARE_DIFF"] = abs(base_resumen["VOTO_SHARE_PL"]-base_resumen["VOTO_SHARE_FP"])
    
-    
     base_resumen["% MESAS"] =  base_resumen["MESA_DE_VOTACION"]/sum(base_resumen["MESA_DE_VOTACION"])
     
     base_resumen =  base_resumen[['DEPARTAMENTO', "ESTADO",
                                   "MESA_DE_VOTACION",
-                                  #"% MESAS",
                                   "VOTOS_P1" , 
                                   "VOTOS_P2" ,                                 
                                   "VOTO_SHARE_PL",
@@ -96,9 +74,8 @@ def app() :
                                                  "VOTO_SHARE_PL": "% PL",
                                                  "VOTO_SHARE_FP": "% FP",
                                                  "VOTO_SHARE_DIFF": "DIF %",
-                                                 "share dif": "Dif prom en votos"
-                                                })
-    
+                                                 "share dif": "Dif prom en votos"})
+
     base_resumen.set_index('DEPARTAMENTO', inplace=True)  
     
     def row_style(row):
@@ -106,11 +83,6 @@ def app() :
                 return pd.Series('background-color: red', row.index)
         else:
                 return pd.Series('background-color: green', row.index)
-        
-
-
-
-  
     
     st.dataframe(  base_resumen.style.format({  
                                  "% PL" :" {:.2%}",
@@ -121,24 +93,12 @@ def app() :
                                  "Dif prom en votos":"{:,.0f}",
                                  'Nro MESAS':"{:,.0f}"
                                  }),width=1600, height=800)
-    
-   # st.write( " Fuerza Popular ganó en el 57.04% de mesas,obteniendo una diferencia promedio de 63 votos por mesa.  \n En tanto, Perú ganó en menos mesas (42.51%) pero obtuvo una diferencia promedio mayor (86 votos por mesa).")
-    #st.markdown("<h5 style='text-align: center;'>Fuerza Popular ganó en el 57.04% de mesas,obteniendo una diferencia promedio de 63 votos por mesa.  \n En tanto, Perú ganó en menos mesas (42.51%) pero obtuvo una diferencia promedio mayor (86 votos por mesa).</h5>", unsafe_allow_html=True)    
-   
-   
-    
-    
-    
-    
-    
-    
+     
 #################################################################################################################
     st.header('DISTRIBUCIÓN DE VOTOS POR DEPARTAMENTO')
     genre = st.radio(                                   # DETERMINAR EL PARTIDO A GRAFICAR
         "Seleccione el Partido Político",
         ('Perú Libre', 'Fuerza Popular'))
-    
-
     
     if genre == 'Perú Libre':
         partido = "VOTOS_P1"
@@ -147,52 +107,23 @@ def app() :
           partido = "VOTOS_P2"
           st.markdown("<h2 style='text-align: center;'>Distribución de Votos Fuerza Popular </h2>", unsafe_allow_html=True)
     
-    
-    
     dep2= list(base[(base["AMBITO"]=="NACIONAL")]["DEPARTAMENTO"].unique())  
-    
     
     col1,col2,col3,col4 = st.beta_columns(4)
     
     
-    
-    # for itex in range(25) :          # CREACIÓN DE CADA HISTOGRAMA
-    
-        
-    #     fig = px.histogram(base[(base["DEPARTAMENTO"]==dep2[itex])][partido], x = partido ,
-    #                     histnorm='probability density',
-    #                     title=dep2[itex], 
-    #                     labels={partido :genre},
-    #                     width=width, height=height,
-    #                     color_discrete_sequence=[colosel]
-    #                     )
-        
-    #     fig.update_layout(height=350, width=425)
-    #     if (itex+1)%4 == 1 :
-    #             col1.plotly_chart(fig, use_container_width=True)
-    #     elif (itex+1)%4 == 2 :
-    #             col2.plotly_chart(fig, use_container_width=True)        
-    #     elif (itex+1)%4 == 3 :
-    #             col3.plotly_chart(fig, use_container_width=True) 
-    #     else:
-    #         col4.plotly_chart(fig, use_container_width=True) 
-    
-    fig = make_subplots(rows=9, cols=3,
-                    #row_heights=(9,9,9,9,9,9,9)
-                    )
-    
+    fig = make_subplots(rows=9, cols=3,)
+   
     for itex in range(25) :          # CREACIÓN DE CADA HISTOGRAMA
     
         globals()[f"trace{itex}"] = go.Histogram(x=base[(base["DEPARTAMENTO"]==dep2[itex])][partido], 
                                                histnorm='probability density',
-                                               name = dep2[itex]
-                                               )
-    
+                                               name = dep2[itex])
+                           
     trace25 = go.Histogram(x=base[(base["AMBITO"]=="EXTRANJERO")][partido], 
                                                    histnorm='probability density',
-                                                   name = "EXTRANJERO"
-                                                   )
-        
+                                                   name = "EXTRANJERO" )
+                                                   
                                                      # UBICACIÓN DE CADA DEPARTAMENTO
     fig.append_trace(trace0  ,row = 1, col = 1)
     fig.append_trace(trace1  ,row = 1, col = 2)
@@ -230,6 +161,4 @@ def app() :
     fig.append_trace(trace25  ,row = 9, col = 2)
         
     fig.update_layout(height=1800, width=1100)    # TAMAÑO DE LA FIGURA GRANDE
-        #fig.show()
-    
     st.plotly_chart(fig, use_container_width=True)
