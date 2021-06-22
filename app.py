@@ -24,8 +24,8 @@ page = PAGES[selection]
 
 st.sidebar.title("Acerca de ")
 st.sidebar.info(
-      """  Este proyecto es mantenido por Edwin Fernández. Visiten mi twitter
-        [@Ed_FernandezG](https://twitter.com/Ed_FernandezG).""")
+      """  Este proyecto es mantenido por 
+        [Edwin Fernández](https://twitter.com/Ed_FernandezG).""")
 page.app()
 
 

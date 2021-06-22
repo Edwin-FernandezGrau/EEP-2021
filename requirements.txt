@@ -4,3 +4,4 @@ xlrd >= 1.0.0
 openpyxl >= 3.0.5
 plotly   >= 4.14.3
 numpy   >= 1.19.2
+spicy >= 1.7.0 
